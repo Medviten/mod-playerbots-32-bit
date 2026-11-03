@@ -7,6 +7,8 @@
 #include "BotRaceTemplates.h"
 
 #include "DatabaseEnv.h"
+#include "Field.h"
+#include "QueryResult.h"
 #include "RaceMgr.h"
 #include "StringConvert.h"
 #include "Tokenize.h"
