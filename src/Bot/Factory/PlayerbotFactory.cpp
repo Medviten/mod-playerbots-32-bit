@@ -5,6 +5,7 @@
  */
 
 #include "PlayerbotFactory.h"
+#include "BotRaceTemplates.h"
 #include "PlayerbotsDatabase.h"
 #include "AccountMgr.h"
 #include "AiFactory.h"
@@ -32,6 +33,7 @@
 #include "PlayerbotSpellRepository.h"
 #include "Playerbots.h"
 #include "QuestDef.h"
+#include "RaceMgr.h"
 #include "RandomItemMgr.h"
 #include "RandomPlayerbotFactory.h"
 #include "ReputationMgr.h"
@@ -4107,7 +4109,7 @@ void PlayerbotFactory::InitMounts()
     std::map<uint8, std::map<uint32, std::vector<uint32>>> mounts;
     std::vector<uint32> slow, fast, fslow, ffast;
 
-    switch (bot->getRace())
+    switch (sRaceMgr->GetHomeRace(bot->getRace()))
     {
         case RACE_HUMAN:
             slow = {470, 6648, 458, 472};
@@ -4149,46 +4151,6 @@ void PlayerbotFactory::InitMounts()
             slow = {33660, 35020, 35022, 35018};
             fast = {35025, 35025, 35027};
             break;
-        case RACE_GOBLIN:
-            slow = {87090};
-            fast = {87091};
-            break;
-        case RACE_WORGEN:
-            slow = {103195};
-            fast = {103196};
-            break;
-        case RACE_HIGHELF:
-            slow = {470, 6648, 458, 472};
-            fast = {23228, 23227, 23229};
-            break;
-        case RACE_MAGHARORC:
-            slow = {6654, 6653, 580};
-            fast = {23250, 23252, 23251};
-            break;
-        case RACE_OGRE:
-            slow = {18990, 18989, 64657};
-            fast = {23249, 23248, 23247};
-            break;
-        case RACE_DARKIRONDWARF:
-            slow = {6899, 6777, 6898};
-            fast = {23238, 23239, 23240};
-            break;
-        case RACE_ZANDALARITROLL:
-            slow = {10796, 10799, 8395};
-            fast = {23241, 23242, 23243};
-            break;
-        case RACE_VULPERA:
-            slow = {306423};
-            fast = {306424};
-            break;
-        case RACE_ALLIANCEPANDAREN:
-            slow = {127287, 120395};
-            fast = {127289, 127286};
-            break;
-        case RACE_HORDEPANDAREN:
-            slow = {127287, 120395};
-            fast = {127289, 127286};
-            break;
         default:
             if (bot->GetTeamId() == TEAM_HORDE)
             { // Orc mounts
@@ -4201,6 +4163,29 @@ void PlayerbotFactory::InitMounts()
                 fast = {23228, 23227, 23229};
             }
     }
+
+    // WHE: a race's own mounts replace its home race's, by speed. Spells the DBCs lack are skipped.
+    std::vector<uint32> raceSlow, raceFast;
+    for (uint32 spell : BotRaceTemplates::GetMounts(bot->getRace()))
+    {
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell);
+        if (!spellInfo)
+            continue;
+
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        {
+            if (spellInfo->Effects[i].ApplyAuraName != SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED)
+                continue;
+
+            (spellInfo->Effects[i].CalcValue() >= 100 ? raceFast : raceSlow).push_back(spell);
+            break;
+        }
+    }
+
+    if (!raceSlow.empty())
+        slow = raceSlow;
+    if (!raceFast.empty())
+        fast = raceFast;
 
     switch (bot->GetTeamId())
     {

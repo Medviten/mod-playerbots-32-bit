@@ -12,6 +12,7 @@
 #include "MapMgr.h"
 #include "PlayerbotTextMgr.h"
 #include "Playerbots.h"
+#include "RaceMgr.h"
 #include "RandomPlayerbotMgr.h"
 #include "ServerFacade.h"
 
@@ -260,10 +261,10 @@ GraveyardStruct const* SpiritHealerAction::GetGrave(bool startZone)
 
     std::vector<uint32> races;
 
-    if (bot->GetTeamId() == TEAM_ALLIANCE)
-        races = {RACE_HUMAN, RACE_DWARF, RACE_GNOME, RACE_NIGHTELF, RACE_DRAENEI, RACE_WORGEN, RACE_HIGHELF, RACE_DARKIRONDWARF, RACE_ALLIANCEPANDAREN};
-    else
-        races = {RACE_ORC, RACE_TROLL, RACE_TAUREN, RACE_UNDEAD_PLAYER, RACE_BLOODELF, RACE_GOBLIN, RACE_MAGHARORC, RACE_OGRE, RACE_ZANDALARITROLL, RACE_VULPERA, RACE_HORDEPANDAREN};
+    uint32 const raceMask = bot->GetTeamId() == TEAM_ALLIANCE ? sRaceMgr->GetAllianceRaceMask() : sRaceMgr->GetHordeRaceMask();
+    for (uint32 race = RACE_HUMAN; race < sRaceMgr->GetMaxRaces(); ++race)
+        if (raceMask & (1 << (race - 1)))
+            races.push_back(race);
 
     float graveDistance = -1;
 

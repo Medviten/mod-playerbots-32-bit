@@ -5,6 +5,7 @@
  */
 
 #include "TravelNode.h"
+#include "ChatHelper.h"
 #include "PlayerbotsDatabase.h"
 #include "BudgetValues.h"
 #include "PathGenerator.h"
@@ -1652,23 +1653,14 @@ void TravelNodeMap::generateNpcNodes()
 void TravelNodeMap::generateStartNodes()
 {
     std::map<uint8, std::string> startNames;
-    startNames[RACE_HUMAN] = "Human, High Elf and Alliance Pandaren";
-    startNames[RACE_ORC] = "Orc, Troll, Goblin, Mag'har Orc, Ogre and Zandalari Troll";
-    startNames[RACE_DWARF] = "Dwarf, Gnome and Dark Iron Dwarf";
-    startNames[RACE_NIGHTELF] = "Night Elf and Worgen";
+    startNames[RACE_HUMAN] = "Human";
+    startNames[RACE_ORC] = "Orc and Troll";
+    startNames[RACE_DWARF] = "Dwarf and Gnome";
+    startNames[RACE_NIGHTELF] = "Night Elf";
     startNames[RACE_UNDEAD_PLAYER] = "Undead";
-    startNames[RACE_TAUREN] = "Tauren, Vulpera and Horde Pandaren";
-    startNames[RACE_GNOME] = "Dwarf, Gnome and Dark Iron Dwarf";
-    startNames[RACE_TROLL] = "Orc, Troll, Goblin, Mag'har Orc, Ogre and Zandalari Troll";
-    startNames[RACE_GOBLIN] = "Orc, Troll, Goblin, Mag'har Orc, Ogre and Zandalari Troll";
-    startNames[RACE_WORGEN] = "Night Elf and Worgen";
-    startNames[RACE_HIGHELF] = "Human, High Elf and Alliance Pandaren";
-    startNames[RACE_MAGHARORC] = "Orc, Troll, Goblin, Mag'har Orc, Ogre and Zandalari Troll";
-    startNames[RACE_DARKIRONDWARF] = "Dwarf, Gnome and Dark Iron Dwarf";
-    startNames[RACE_ZANDALARITROLL] = "Orc, Troll, Goblin, Mag'har Orc, Ogre and Zandalari Troll";
-    startNames[RACE_VULPERA] = "Tauren, Vulpera and Horde Pandaren";
-    startNames[RACE_ALLIANCEPANDAREN] = "Human, High Elf and Alliance Pandaren";
-    startNames[RACE_HORDEPANDAREN] = "Tauren, Vulpera and Horde Pandaren";
+    startNames[RACE_TAUREN] = "Tauren";
+    startNames[RACE_GNOME] = "Dwarf and Gnome";
+    startNames[RACE_TROLL] = "Orc and Troll";
 
     for (uint32 i = 0; i < sRaceMgr->GetMaxRaces(); i++)
     {
@@ -1681,7 +1673,7 @@ void TravelNodeMap::generateStartNodes()
 
             WorldPosition pos(info->mapId, info->positionX, info->positionY, info->positionZ, info->orientation);
 
-            std::string const nodeName = startNames[i] + " start";
+            std::string const nodeName = (startNames.count(i) ? startNames[i] : ChatHelper::FormatRace(i)) + " start";
 
             TravelNodeMap::instance().addNode(pos, nodeName, true, true);
 
